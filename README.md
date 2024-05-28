@@ -1,5 +1,8 @@
 # lightbulbs
 
+## ***“Your mind is for having ideas, not holding them.”* – David Allen**
+
+
 > A quick way to jot down an idea before it escapes.
 
 ![brilliant!](brilliant.png)
