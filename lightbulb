@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+# Set your Lightbulb Directory here
+LIGHTBULB_DIR=~/Lightbulbs
+
+# Create the LIGHTBULB_DIR directory if it doesn't exist
+if [ ! -d "$LIGHTBULB_DIR" ]; then
+  echo "Creating LIGHTBULB_DIR: $LIGHTBULB_DIR"
+  mkdir "$LIGHTBULB_DIR"
+fi
+
+NEXT_LIGHTBULB_NUM=0
+
+if [ "$(ls -A "$LIGHTBULB_DIR")" ]; then
+  for file in "$LIGHTBULB_DIR"/lightbulb*.md; do
+    filename="${file##*/}"
+    num="${filename#lightbulb}"
+    num="${num%.md}"
+    if (( num > NEXT_LIGHTBULB_NUM )); then
+      NEXT_LIGHTBULB_NUM=$num
+    fi
+  done
+fi
+
+NEXT_LIGHTBULB_NUM=$(printf "%03d" $((NEXT_LIGHTBULB_NUM + 1)))
+
+NEW_LIGHTBULB_FILE="lightbulb${NEXT_LIGHTBULB_NUM}.md"
+nvim "$LIGHTBULB_DIR/$NEW_LIGHTBULB_FILE"
+
+exit
