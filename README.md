@@ -11,5 +11,15 @@ Just run this command to open your favorite text editor to write down and safe a
 
 ```sh
 git clone https://github.com/zer0theory/lightbulbs.git
+cd lightbulbs/
+./lightbulb
 ```
+
+## Custom Lightbulb Directory
+
+Edit the lightbulb file with your favorite text or code editor and change the directory to where you wish.
+If you use (Obsidian)[https://obsidian.md] you can set the directory within that directory structure and Obsidian will recognize the folder and files instantly.
+
+## Move to Path
+
 
