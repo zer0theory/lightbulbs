@@ -3,9 +3,8 @@
 # Set your Lightbulb Directory here
 LIGHTBULB_DIR=~/Lightbulbs/
 
-# Create the LIGHTBULB_DIR directory if it doesn't exist
 if [ ! -d "$LIGHTBULB_DIR" ]; then
-  echo "Creating Lightbulb Directory: $LIGHTBULB_DIR"
+  echo "Creating Lightbulbs Directory: $LIGHTBULB_DIR"
   mkdir "$LIGHTBULB_DIR"
 fi
 
@@ -25,6 +24,8 @@ fi
 NEXT_LIGHTBULB_NUM=$(printf "%03d" $((NEXT_LIGHTBULB_NUM + 1)))
 
 NEW_LIGHTBULB_FILE="lightbulb${NEXT_LIGHTBULB_NUM}.md"
+
+# Change nvim to your editor of choice below
 nvim "$LIGHTBULB_DIR/$NEW_LIGHTBULB_FILE"
 
 exit
