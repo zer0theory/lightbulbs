@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+##############################################
+#                                            #
+# Lightbulbs, the genius idea capturing tool #
+# https://github.com/zer0theory/lightbulbs   #
+#                                            #
+##############################################
+
+
 # Set your Lightbulb Directory here
 LIGHTBULB_DIR=~/Lightbulbs/
 
@@ -25,7 +33,11 @@ NEXT_LIGHTBULB_NUM=$(printf "%03d" $((NEXT_LIGHTBULB_NUM + 1)))
 
 NEW_LIGHTBULB_FILE="lightbulb${NEXT_LIGHTBULB_NUM}.md"
 
+echo "# $(date +'%A, %B %d %Y, %I:%M %P')" > "$LIGHTBULB_DIR/$NEW_LIGHTBULB_FILE"
+
+
 # Change nvim to your editor of choice below
 nvim "$LIGHTBULB_DIR/$NEW_LIGHTBULB_FILE"
+
 
 exit
