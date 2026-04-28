@@ -11,7 +11,7 @@
 ## Ideas
 
 Ever have a great idea and you know you have to get it in writing quickly or you'll likely forget? This is the tool for you!
-Just run this command to open your favorite text editor to write down and save a markdown note. 
+Just run this command in a terminal to open your favorite text editor to capture it to a markdown file.
 
 
 ## Use
@@ -22,27 +22,37 @@ cd lightbulbs/
 
 ```
 
-Then to run 
+Then run
 
 ```sh
 ./lightbulb
 ```
 
-By default this will create the ~/Lightbulbs directory if it doesn't exist, then creates your first lightbulb note as well as enter it with the text editor. Simply write down your million dollar idea and save the file. This creates files starting at lightbulb001.md and increases in number as you create new ideas.
+By default, this will create the ~/Lightbulbs directory. Then creates your first lightbulb note and enters it with your text editor. Simply write down your million dollar idea and save the file. This creates files starting at lightbulb001.md and increases in number as you create new ideas.
 
-By default the text editor is set to [neovim](https://neovim.io/) If you wish to use another text editor, modify the script changing the instance of **nvim** to whichever editor you prefer.
+Use `lightbulb -h` to see all options.
+
+By default, it uses the editor set at environment variable $EDITOR. If this isn't set, it will default to neovim [neovim](https://neovim.io/) then vim. If you wish to use another text editor, modify the script changing the instance of **nvim** to whichever editor you prefer or set your $EDITOR variable.
 
 
 ## Custom Lightbulb Directory
 
-Edit the lightbulb file and change the directory to where you wish.
+Edit the lightbulb script file and change the directory to where you wish.
 
-If you use [Obsidian](https://obsidian.md), you can set the directory within your Obsidian notes directory and Obsidian will recognize the folder and files instantly.
+If you use [Obsidian](https://obsidian.md), you can set the directory within your Obsidian notes directory and Obsidian will recognize the folder and files instantly!
 
 ## Move lightbulb to Path
 
-To make life easier on yourself you can move the lightbulb file to your path.
+To make life easier on yourself you can make a symlink of the script to your path.
 
-```sh
-cp lightbulb /usr/local/bin/
+```bash
+sudo ln -s "$(realpath ./lightbulb)" /usr/local/bin/lightbulb
 ```
+
+Or...
+
+```bash
+ln -s "$(realpath ./lightbulb)" ~/.local/bin/lightbulb
+```
+```
+
