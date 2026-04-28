@@ -5,7 +5,6 @@
 
 > A quick way to capture an idea before it escapes.
 
-![brilliant!](brilliant.png)
 <img width="1432" height="960" alt="brilliant" src="https://github.com/user-attachments/assets/3e5c5903-49ca-4d2e-9ade-8f03cf799f2b" />
 
 
