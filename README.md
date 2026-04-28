@@ -54,5 +54,3 @@ Or...
 ```bash
 ln -s "$(realpath ./lightbulb)" ~/.local/bin/lightbulb
 ```
-```
-
