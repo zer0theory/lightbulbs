@@ -7,9 +7,148 @@
 #                                            #
 ##############################################
 
-
 # Set your Lightbulb Directory here
 LIGHTBULB_DIR=~/Lightbulbs/
+
+# Handle help flags
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+  echo "Lightbulbs: A simple tool for capturing ideas in markdown files."
+  echo ""
+  echo "Usage: lightbulb [OPTION]"
+  echo ""
+  echo "Options:"
+  echo "  -c          Compact/renumber all lightbulb files sequentially by date (fills gaps) (e.g., 001,003,004 → 001,002,003)"
+  echo "  -d          Display the lightbulb directory path"
+  echo "  -l          List all existing lightbulb files with their creation dates (first line of each file)"
+  echo "  -r NUM       Remove the lightbulb file with number NUM (e.g., 002)"
+  echo "  -h, --help  Display this help message and exit"
+  echo ""
+  echo "Default behavior (no options): Creates a new lightbulb markdown file in $LIGHTBULB_DIR,"
+  echo "appends the current date/time as the first line, and opens it in your editor."
+  echo "Set \$EDITOR to override the default editor (currently: ${EDITOR:-nvim})."
+  exit 0
+fi
+
+# Handle -d flag to display directory path (no directory creation)
+if [[ "$1" == "-d" ]]; then
+  echo ""
+  echo "Lightbulbs directory is $LIGHTBULB_DIR"
+  exit 0
+fi
+
+# Handle -l flag to list files (no directory creation)
+if [[ "$1" == "-l" ]]; then
+  if [ ! -d "$LIGHTBULB_DIR" ]; then
+    echo "Listing lightbulb files in $LIGHTBULB_DIR..."
+    echo "No lightbulb files found. Directory has not been created yet."
+    exit 0
+  fi
+  echo "Listing lightbulb files in $LIGHTBULB_DIR..."
+  shopt -s nullglob
+  lightbulb_files=("$LIGHTBULB_DIR"/lightbulb*.md)
+  shopt -u nullglob
+
+  if [[ ${#lightbulb_files[@]} -eq 0 ]]; then
+    echo "No lightbulb files found."
+  else
+    for file in "${lightbulb_files[@]}"; do
+      filename=$(basename "$file")
+      first_line=$(head -n 1 "$file")
+      printf "%-20s %s\n" "$filename" "$first_line"
+    done
+    echo ""
+    echo "To remove a lightbulb, use: lightbulb -r NUM  (e.g., 002)"
+  fi
+  exit 0
+fi
+
+# Handle -r flag to remove a lightbulb file by number
+if [[ "$1" == "-r" ]]; then
+  if [[ ! "$2" =~ ^[0-9]+$ ]]; then
+    echo "Error: NUM must be a number (e.g., 002)."
+    exit 1
+  fi
+  num=$(printf "%03d" "$2")
+  file="$LIGHTBULB_DIR/lightbulb${num}.md"
+  if [ -f "$file" ]; then
+    rm "$file"
+    echo "Removed: lightbulb${num}.md"
+  else
+    echo "Error: lightbulb${num}.md not found."
+  fi
+  exit 0
+fi
+
+# Handle -c flag to compact/renumber all files sequentially by date
+if [[ "$1" == "-c" ]]; then
+  if [ ! -d "$LIGHTBULB_DIR" ]; then
+    echo "No lightbulb directory found. Nothing to compact."
+    exit 0
+  fi
+  shopt -s nullglob
+  lightbulb_files=("$LIGHTBULB_DIR"/lightbulb*.md)
+  shopt -u nullglob
+
+  if [[ ${#lightbulb_files[@]} -eq 0 ]]; then
+    echo "No lightbulb files found. Nothing to compact."
+    exit 0
+  fi
+
+  # Read first line (date) from each file, convert to timestamp for sorting
+  declare -a file_dates
+  for file in "${lightbulb_files[@]}"; do
+    first_line=$(head -n 1 "$file")
+    # Strip "# " prefix, then remove day-of-week "Tuesday, " prefix
+    date_str=$(echo "$first_line" | sed 's/^# //' | sed 's/^[A-Za-z]*, //')
+    # Remove comma after year: "April 16 2026, 09:16 am" -> "April 16 2026 09:16 am"
+    date_str=$(echo "$date_str" | sed 's/,//')
+    # Convert to timestamp
+    timestamp=$(date -d "$date_str" +%s 2>/dev/null || echo 0)
+    file_dates+=("$timestamp"$'\t'"$file")
+  done
+
+  # Sort by timestamp (oldest first), then extract file paths
+  IFS=$'\n' sorted=($(sort -n <<<"${file_dates[*]}"))
+  unset IFS
+
+  # Get sorted file paths
+  declare -a sorted_files
+  for entry in "${sorted[@]}"; do
+    sorted_files+=("$(echo "$entry" | cut -f2-)")
+  done
+
+  # Rename files sequentially using temp names to avoid conflicts
+  num=1
+  declare -a rename_map
+  for old_path in "${sorted_files[@]}"; do
+    new_num=$(printf "%03d" "$num")
+    new_path="$LIGHTBULB_DIR/lightbulb${new_num}.md"
+    rename_map+=("$old_path" "$new_path")
+    num=$((num + 1))
+  done
+
+  # First pass: rename to temp names
+  for ((i=0; i<${#rename_map[@]}; i+=2)); do
+    old_path="${rename_map[$i]}"
+    new_path="${rename_map[$((i+1))]}"
+    if [ "$old_path" != "$new_path" ]; then
+      mv "$old_path" "${new_path}.tmp"
+    fi
+  done
+
+  # Second pass: rename from temp names to final names
+  for ((i=0; i<${#rename_map[@]}; i+=2)); do
+    old_path="${rename_map[$i]}"
+    new_path="${rename_map[$((i+1))]}"
+    if [ "$old_path" != "$new_path" ]; then
+      mv "${new_path}.tmp" "$new_path"
+    fi
+  done
+
+  echo "Compacted $((num - 1)) lightbulb files by date (oldest first)."
+  echo "Gaps have been filled and files renumbered sequentially."
+  exit 0
+fi
 
 if [ ! -d "$LIGHTBULB_DIR" ]; then
   echo "Creating Lightbulbs Directory: $LIGHTBULB_DIR"
@@ -35,9 +174,16 @@ NEW_LIGHTBULB_FILE="lightbulb${NEXT_LIGHTBULB_NUM}.md"
 
 echo "# $(date +'%A, %B %d %Y, %I:%M %P')" > "$LIGHTBULB_DIR/$NEW_LIGHTBULB_FILE"
 
-
-# Change nvim to your editor of choice below
-nvim "$LIGHTBULB_DIR/$NEW_LIGHTBULB_FILE"
-
+# Use $EDITOR if set, otherwise try nvim, then vim
+if [ -n "$EDITOR" ]; then
+  "$EDITOR" "$LIGHTBULB_DIR/$NEW_LIGHTBULB_FILE"
+elif command -v nvim &>/dev/null; then
+  nvim "$LIGHTBULB_DIR/$NEW_LIGHTBULB_FILE"
+elif command -v vim &>/dev/null; then
+  vim "$LIGHTBULB_DIR/$NEW_LIGHTBULB_FILE"
+else
+  echo "No editor found. Set \$EDITOR or install nvim/vim."
+  exit 1
+fi
 
 exit
